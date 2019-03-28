@@ -15,7 +15,7 @@ def setup(request):
     driver.get('http://litecart.stqa.ru/index.php/en/')
 
     yield driver
-    driver.close()
+    driver.quit()
 
 
 @pytest.mark.usefixtures("setup")
