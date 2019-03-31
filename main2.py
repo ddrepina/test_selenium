@@ -1,26 +1,40 @@
-import time
 import pytest
-from selenium import webdriver
+# from selenium import webdriver
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
+from configparser import ConfigParser
+from selenium.webdriver.common.by import By
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def setup(request):
+    global url
+    url = config_read()
     global driver
-    driver = webdriver.Chrome('D:\\programs\\chromedriver.exe')
-    session = request.node
-    # for item in session.items:
-    #     cls = item.getparent(pytest.Class)
-    #     setattr(cls.obj, "driver", driver)
-    # time.sleep(9)
-    driver.get('http://litecart.stqa.ru/index.php/en/')
+    opts = Options()
+    opts.set_headless()
+    assert opts.headless
+    driver = Chrome(options=opts)
+    driver.get(url['index'])
     yield driver
     driver.quit()
 
 
+def config_read():
+    config = ConfigParser()
+    config.read('config.ini')
+    index = config.get('url', 'index')
+    account = config.get('url', 'account')
+    acme = config.get('url', 'acme')
+    return {'index': index, 'account': account, 'acme': acme}
+
+
 @pytest.mark.usefixtures("setup")
 def test_li():
-    all = driver.find_elements_by_tag_name('li')
+    print(url['index'])
+    # all = driver.find_elements_by_tag_name('li')
+    all = driver.find_elements(By.TAG_NAME, 'li')
     for a in all:
         print(a.get_attribute('class'))
     assert all
@@ -51,7 +65,9 @@ def test_twelve_eighty():
 
 @pytest.mark.usefixtures("setup")
 def test_US():
-    driver.get('http://litecart.stqa.ru/index.php/en/create_account')
+    # url = config_read()
+    driver.get(url['account'])
+    # driver.get('http://litecart.stqa.ru/index.php/en/create_account')
     select2 = driver.find_element_by_class_name('select2-container').click()
     select = driver.find_elements_by_class_name('select2-results__options')
     US = driver.find_element_by_xpath("//*[contains(text(), 'United States')]")
@@ -61,7 +77,7 @@ def test_US():
 
 @pytest.mark.usefixtures("setup")
 def test_US_zone():
-    driver.get('http://litecart.stqa.ru/index.php/en/create_account')
+    driver.get(url['account'])
     select2 = driver.find_element_by_class_name('select2-container').click()
     select = driver.find_elements_by_class_name('select2-results__options')
     US = driver.find_element_by_xpath("//*[contains(text(), 'United States')]").click()
@@ -73,7 +89,7 @@ def test_US_zone():
 
 @pytest.mark.usefixtures("setup")
 def test_US_zone_select():
-    driver.get('http://litecart.stqa.ru/index.php/en/create_account')
+    driver.get(url['account'])
     select2 = driver.find_element_by_class_name('select2-container').click()
     select = driver.find_elements_by_class_name('select2-results__options')
     US = driver.find_element_by_xpath("//*[contains(text(), 'United States')]").click()
@@ -84,7 +100,7 @@ def test_US_zone_select():
 
 @pytest.mark.usefixtures("setup")
 def test_sort_date():
-    driver.get('http://litecart.stqa.ru/index.php/en/acme-corp-m-1/')
+    driver.get(url['acme'])
     sort_date = driver.find_element_by_partial_link_text('Date')
     # sort_date = driver.find_element_by_xpath("//*[contains(text(), 'Date')]")
     print(sort_date.get_attribute('href'))
@@ -93,7 +109,7 @@ def test_sort_date():
 
 @pytest.mark.usefixtures("setup")
 def test_zoomable():
-    driver.get('http://litecart.stqa.ru/index.php/en/acme-corp-m-1/')
+    driver.get(url['acme'])
     zoomable = driver.find_element_by_class_name('fa')
     print(zoomable.get_attribute('class'))
     assert zoomable
