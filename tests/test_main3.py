@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from datetime import datetime
+from selenium.webdriver.support.ui import Select
 import pytest
 import time
 
@@ -24,6 +25,7 @@ def test_li2(driver):
         print(a[0], a[1].get_attribute('class'))
 
 
+@pytest.mark.skip
 def test_high_level1(driver):
     all = driver.find_elements_by_css_selector('li.product.column.shadow.hover-light')
     for a in all:
@@ -57,4 +59,14 @@ def test_high_level2(driver):
             # driver.save_screenshot('goal_{}.png'.format(datetime.now))
     driver.get(goal)
     driver.find_element_by_xpath('//*[@name="add_cart_product"]').click()
-    time.sleep(3)
+    s_size = Select(driver.find_element_by_xpath("//select[@name='options[Size]']"))
+    s_size.select_by_visible_text('Small')
+    driver.find_element_by_name('add_cart_product').click()
+    time.sleep(2)
+    driver.find_element_by_name('add_cart_product').click()
+    time.sleep(2)
+    driver.find_element_by_css_selector('a.image').click()
+    time.sleep(1)
+    # td = driver.find_element_by_xpath('//tr[@class="footer"]/td[last()]')
+    td = driver.find_element_by_xpath('//tr[@class="footer"]/td[not(@colspan)]')
+    print(td.text)
