@@ -3,6 +3,8 @@ from datetime import datetime
 from selenium.webdriver.support.ui import Select
 import pytest
 import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 URL = 'http://litecart.stqa.ru/index.php/en/'
@@ -62,11 +64,13 @@ def test_high_level2(driver):
     s_size = Select(driver.find_element_by_xpath("//select[@name='options[Size]']"))
     s_size.select_by_visible_text('Small')
     driver.find_element_by_name('add_cart_product').click()
-    time.sleep(2)
+
+    wait = WebDriverWait(driver, 4)
+    wait.until(EC.element_to_be_clickable((By.NAME, 'add_cart_product')))
     driver.find_element_by_name('add_cart_product').click()
     time.sleep(2)
     driver.find_element_by_css_selector('a.image').click()
-    time.sleep(1)
+    wait.until(EC.visibility_of_element_located((By.XPATH, '//tr[@class="footer"]/td[last()]')))
     # td = driver.find_element_by_xpath('//tr[@class="footer"]/td[last()]')
     td = driver.find_element_by_xpath('//tr[@class="footer"]/td[not(@colspan)]')
     print(td.text)
